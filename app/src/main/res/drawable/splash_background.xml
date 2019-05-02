@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/splash_base"></item>
+    <item android:gravity="center">
+        <bitmap android:src="@drawable/connect_logo" android:gravity="center"></bitmap>
+    </item>
+</layer-list>
+
+<!--여러개의 아이템을 중첩시켜서 추가시킨다-->

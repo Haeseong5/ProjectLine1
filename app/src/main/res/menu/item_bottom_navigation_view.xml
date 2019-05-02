@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_menu1"
+        android:icon="@android:drawable/ic_menu_call"
+        android:title="인연찾기" />
+    <item
+        android:id="@+id/navigation_menu2"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="라운지" />
+    <item
+        android:id="@+id/navigation_menu3"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="대화" />
+    <item
+        android:id="@+id/navigation_menu4"
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="내정보" />
+</menu>
