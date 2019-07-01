@@ -1,11 +1,8 @@
 <resources>
-    <string name="app_name">ProjectLine1</string>
+    <string name="app_name">ProjectIcheon</string>
     <string name="facebook_app_id">1629854973827005</string>
     <string name="fb_login_protocol_scheme">fb1629854973827005</string>
 
-    <string name="premium">프리미엄</string>
-    <string name="diamond">다이아</string>
-    <string name="basic">일반</string>
     <string name="blank">""</string>
 
 

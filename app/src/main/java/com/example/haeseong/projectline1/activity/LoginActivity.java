@@ -2,6 +2,7 @@ package com.example.haeseong.projectline1.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -43,7 +44,8 @@ public class LoginActivity extends AppCompatActivity {
     TextView tvSignUp;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private CallbackManager mCallbackManager;
-
+    String name;
+    String email;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -80,8 +82,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 println("이메일 로그인");
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
+                emailLogin(etEmail.getText().toString(), etPassword.getText().toString());
                 finish();
             }
         });
@@ -134,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 AccessToken accessToken = AccessToken.getCurrentAccessToken();
                 boolean isLoggedIn = (accessToken != null) && (!accessToken.isExpired()); //액세스토큰이 null이 아니고 만료되지 않았다면
                 handleFacebookAccessToken(accessToken,isLoggedIn);
+
             }
 
             @Override
@@ -165,12 +167,33 @@ public class LoginActivity extends AppCompatActivity {
                             startActivity(intent);
                             Toast.makeText(LoginActivity.this, "Authentication success.",
                                     Toast.LENGTH_SHORT).show();
-
+                            setProfile();
                             finish();
                         }
                     }
                 });
 
+    }
+    protected void setProfile() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // Name, email address, and profile photo Url
+            name = user.getDisplayName();
+            email = user.getEmail();
+            Uri photoUrl = user.getPhotoUrl();
+            String uid = user.getUid();
+            boolean emailVerified = user.isEmailVerified(); // Check if user's email is verified
+
+            Log.d(TAG,"name:"+name);
+            Log.d(TAG,"email:"+email);
+            Log.d(TAG,"photoURL:"+photoUrl);
+            Log.d(TAG,"uid:"+uid);
+            Log.d(TAG,"emailVerified:"+emailVerified);
+            GlobalUser globalUser = GlobalUser.getInstance();
+            globalUser.setLogin(true);
+            globalUser.setEmail(email);
+            globalUser.setName(name);
+        }
     }
     protected void findView()
     {
@@ -216,6 +239,8 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 println("페이스북 로그인 success");
                                 println("파이어베이스 로그인 성공");
+                                setProfile();
+
                                 //프로그래스바 추가
                                 finish();
 
@@ -252,6 +277,7 @@ public class LoginActivity extends AppCompatActivity {
             println("자동로그인 되었습니다."+currentUser.getUid());
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
+            setProfile();
             finish();
         } else {
             // No user is signed in

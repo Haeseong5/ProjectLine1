@@ -3,18 +3,18 @@
 
     <item
         android:id="@+id/navigation_menu1"
-        android:icon="@android:drawable/ic_menu_call"
-        android:title="인연찾기" />
+        android:icon="@android:drawable/ic_dialog_alert"
+        android:title="홈" />
     <item
         android:id="@+id/navigation_menu2"
         android:icon="@android:drawable/ic_menu_camera"
-        android:title="라운지" />
+        android:title="게시판" />
     <item
         android:id="@+id/navigation_menu3"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="대화" />
+        android:title="쪽지함" />
     <item
         android:id="@+id/navigation_menu4"
         android:icon="@android:drawable/ic_menu_help"
-        android:title="내정보" />
+        android:title="프로필" />
 </menu>

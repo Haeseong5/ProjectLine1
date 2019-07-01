@@ -54,7 +54,8 @@ public class SignUpActivity extends AppCompatActivity {
 //                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
 //                } else {
 //                    // User is signed out
-//                    Log.d(TAG, "onAuthStateChanged:signed_out");
+//                    Log.d(TAG, "onAuthStateCha
+// nged:signed_out");
 //                }
 //                // ...
 //            }

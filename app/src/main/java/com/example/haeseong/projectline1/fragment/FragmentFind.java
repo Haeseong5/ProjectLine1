@@ -1,155 +1,187 @@
 package com.example.haeseong.projectline1.fragment;
 
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.RatingBar;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.haeseong.projectline1.R;
-import com.example.haeseong.projectline1.activity.ChatActivity;
-import com.example.haeseong.projectline1.adapter.PagerAdapter;
-import com.example.haeseong.projectline1.data.ChatData;
-import com.example.haeseong.projectline1.data.UserData;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.haeseong.projectline1.adapter.FriendAdapter;
+import com.example.haeseong.projectline1.data.FriendData;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FragmentFind extends Fragment {
     private final String TAG = "FragmentFind";
     View rootView;
-    ViewPager viewPager;
-    ArrayList<UserData> userDataArrayList;
-    ArrayList<String> photos;
-    TextView tvName;
-    TextView tvHeight;
-    TextView tvArea;
-    TextView tvAge;
-    RatingBar rbUserScore;
-    ImageButton ibLike;
-    ImageButton ibUnLike;
-    Button btProfile;
-    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    int index =0; //인덱스 값은 서버에서 넘겨줄 것임.
+    RecyclerView recyclerView;
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    FriendAdapter adapter;
+    ArrayList<FriendData> friendList = new ArrayList<>();
+    Button button;
+    String myEmail;
+    FirebaseUser user;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //리소스 넘겨받은 것들 초기화
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user!=null) {
+            myEmail = user.getEmail();
+        }
+//        readData();
+    }
+
     @Nullable
     @Override //Fragment가 자신의 UI를 그릴 때 호출합니다. UI를 그리기 위해 메서드에서는 View를 Return 해야 합니다.
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_find, container, false);
-        setView();
-        userDataArrayList = new ArrayList<>();
-        init();
-        readUserData();
+        button = rootView.findViewById(R.id.friend_add_button);
+        recyclerView = rootView.findViewById(R.id.friend_recyclerview);
 
-
-
-        ibLike.setOnClickListener(new View.OnClickListener() {
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                println(String.valueOf(rbUserScore.getRating()));
-                index = index++;
+                openAddDialog();
             }
         });
-        ibUnLike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                println(String.valueOf(rbUserScore.getRating()));
-                index = index++;
-            }
-        });
-        btProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ChatActivity.class);
-                startActivity(intent);
-            }
-        });
+        //데이터 세팅
+        // 리사이클러뷰에 LinearLayoutManager 객체 지정.
+        // 리사이클러뷰가 아이템을 화면에 표시할 때, 아이템 뷰들이 리사이클러뷰 내부에서 배치되는 형태를 관리하는 요소
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity())) ;
+        // 리사이클러뷰에 어뎁터 객체 지정.
+        adapter = new FriendAdapter(friendList);
+        recyclerView.setAdapter(adapter);
+        println("onCreateView");
         return rootView;
     }
-    void init(){
-        photos = new ArrayList<>();
-        photos.add("http://image.cine21.com/resize/cine21/person/2017/1222/16_53_14__5a3cb9ea1e0fc[H800-].jpg");
-        photos.add("https://img.sbs.co.kr/newsnet/etv/upload/2017/08/22/30000577662_1280.jpg");
-        photos.add("http://image.cine21.com/resize/cine21/person/2017/1222/16_53_14__5a3cb9ea1e0fc[H800-].jpg");
-        photos.add("http://image.cine21.com/resize/cine21/person/2017/1222/16_53_14__5a3cb9ea1e0fc[H800-].jpg");
-        photos.add("http://image.cine21.com/resize/cine21/person/2017/1222/16_53_14__5a3cb9ea1e0fc[H800-].jpg");
-        photos.add("http://image.cine21.com/resize/cine21/person/2017/1222/16_53_14__5a3cb9ea1e0fc[H800-].jpg");
-    }
-
-    private void readUserData() {
-        DatabaseReference myRef = firebaseDatabase.getReference("users"); //채팅방이름
-        myRef.addChildEventListener(new ChildEventListener() {
-            @Override //https://firebase.google.com/docs/database/android/retrieve-data?hl=ko
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                //항목 목록을 검색하거나 항목 목록에 대한 추가를 수신 대기합니다.
-//                 Firebase 데이터베이스의 항목 목록을 검색하는 데 사용
-//                UserData userData = dataSnapshot.getValue(UserData.class);
-//                println(userData.getName());
-                UserData userData = new UserData();
-                userData.setName("김태리");
-                userData.setPhotos(photos);
-                userData.setHeight("170");
-                userData.setAge("28");
-                userData.setArea("서울");
-                userDataArrayList.add(userData);
-                tvName.setText(userDataArrayList.get(0).getName());
-                tvAge.setText(userDataArrayList.get(0).getAge());
-                tvHeight.setText(userDataArrayList.get(0).getHeight());
-                tvArea.setText(userDataArrayList.get(0).getArea());
-
-
-                viewPager.setAdapter(new PagerAdapter(getFragmentManager(),userDataArrayList,getActivity()));
-                viewPager.setCurrentItem(0); //앱 실행 시 첫번째 페이지로 초기화
-            }
-
+    void readData(){
+        println("readDATA");
+        DocumentReference docRef = firestore.collection("friends").document(myEmail);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                println("readData Success");
+                FriendData friendData = documentSnapshot.toObject(FriendData.class);
+                friendList.add(friendData); //프래그먼트 이동할때마다 데이터가 추가되는 이슈 발생
+                adapter.notifyDataSetChanged();
             }
         });
+    }
+    void readAddedFriend(){
+        final DocumentReference docRef = firestore.collection("friends").document(myEmail);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                    FriendData friendData = snapshot.toObject(FriendData.class);
+                    friendList.add(friendData);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+    }
+    void addData(final String inputEmail){
+// Update one field, creating the document if it does not already exist.
+        Map<String, Object> newFriend = new HashMap<>();
+        newFriend.put("name", inputEmail);
+
+        firestore.collection("friends").document(myEmail)
+                .set(newFriend, SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                        println(inputEmail+" firestore 친구추가 성공");
+                        readAddedFriend();                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });;
+        //컬렉션 - 도큐먼트 - 필드
+//        FriendData friendData = new FriendData(inputEmail,"");
+//        firestore.collection("friends").document(myEmail).set(friendData)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d(TAG, "DocumentSnapshot successfully written!");
+//                        println(inputEmail+" firestore 친구추가 성공");
+//                        readAddedFriend();                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "Error adding document", e);
+////                   }
+//                });
+        // Add a new document with a generated ID
+    }
+    void openAddDialog(){
+        final EditText edittext = new EditText(getActivity());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("AlertDialog Title");
+        builder.setMessage("AlertDialog Content");
+        builder.setView(edittext);
+        builder.setPositiveButton("입력",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        addData(edittext.getText().toString());
+                    }
+                });
+        builder.setNegativeButton("취소",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        builder.show();
     }
     void println(String message){
         Log.d(TAG, message);
         Toast.makeText(getActivity(),message,Toast.LENGTH_SHORT).show();
     }
-    void setView(){
-        viewPager = rootView.findViewById(R.id.find_viewpager);
-        tvName = rootView.findViewById(R.id.find_user_name);
-        tvArea = rootView.findViewById(R.id.find_user_area);
-        tvHeight = rootView.findViewById(R.id.find_user_height);
-        tvAge = rootView.findViewById(R.id.find_user_age);
-        rbUserScore = rootView.findViewById(R.id.find_user_rating_bar);
-        ibLike = rootView.findViewById(R.id.find_img_btn_like);
-        ibUnLike = rootView.findViewById(R.id.find_img_btn_unlike);
-        btProfile = rootView.findViewById(R.id.find_view_profile_button);
-    }
+
 }

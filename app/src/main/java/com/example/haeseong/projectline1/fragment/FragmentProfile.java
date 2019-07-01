@@ -21,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.activity.LoginActivity;
+import com.example.haeseong.projectline1.activity.MapsActivity;
 import com.example.haeseong.projectline1.adapter.ProfileAdapter;
 import com.example.haeseong.projectline1.adapter.ProfileAdapter2;
 import com.example.haeseong.projectline1.data.UserData;
@@ -71,7 +73,6 @@ public class FragmentProfile extends Fragment {
     ListView listView;
     ListView listView2;
     ScrollView scrollView;
-    ImageView ivEditProfile;
 
     ArrayList<ProfileItem> profileItems;
     ArrayList<String> profileItems2;
@@ -108,7 +109,7 @@ public class FragmentProfile extends Fragment {
                 Log.d(TAG, "Value is: " + name);
 
                 String photo = dataSnapshot.child("photo").getValue().toString();
-                Glide.with(getActivity()).load(photo).into(ivProfileImage);
+//                Glide.with(getActivity()).load(photo).into(ivProfileImage);
 //
 //                if(TextUtils.isEmpty(stPhoto)) {
 //                } else {
@@ -156,13 +157,11 @@ public class FragmentProfile extends Fragment {
     protected void setListView2(){
         profileItems2 = new ArrayList<>();
 
-        profileItems2.add("#라인 이용방법");
-        profileItems2.add("#푸시 알림 설정");
-        profileItems2.add("#계정 설정하기");
-        profileItems2.add("#이용약관");
-        profileItems2.add("#개인정보 처리방침");
-        profileItems2.add("#오픈소스 라이선스");
-
+        profileItems2.add("동아리 정보");
+        profileItems2.add("학원");
+        profileItems2.add("스터디 카페");
+        profileItems2.add("독서실");
+        profileItems2.add("급식");
 
         profileAdapter2 = new ProfileAdapter2(getActivity(), profileItems2);
         listView2.setAdapter(profileAdapter2);
@@ -176,17 +175,23 @@ public class FragmentProfile extends Fragment {
                 return false;
             }
         });
+        listView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
     protected void setListView() {
         profileItems = new ArrayList<>();
 
-        profileItems.add(new ProfileItem("#내 회원권", R.mipmap.ic_app, getString(R.string.premium)));
-        profileItems.add(new ProfileItem("#내 매력티어", R.mipmap.ic_app, getString(R.string.diamond)));
-        profileItems.add(new ProfileItem("#아는 사람 만나지 않기", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("#친구에게 소개하기", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("#공지사항/이벤트", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("#도움말", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("#문의하기", R.mipmap.ic_app, getString(R.string.blank)));
+        profileItems.add(new ProfileItem("내가 쓴 글", R.mipmap.ic_app, "0"));
+        profileItems.add(new ProfileItem("내가 댓글 단 글", R.mipmap.ic_app, "0"));
+        profileItems.add(new ProfileItem("친구에게 소개하기", R.mipmap.ic_app, getString(R.string.blank)));
+        profileItems.add(new ProfileItem("공지사항/이벤트", R.mipmap.ic_app, getString(R.string.blank)));
+        profileItems.add(new ProfileItem("도움말", R.mipmap.ic_app, getString(R.string.blank)));
+        profileItems.add(new ProfileItem("문의하기", R.mipmap.ic_app, getString(R.string.blank)));
 
         profileAdapter = new ProfileAdapter(getActivity(), profileItems);
         listView.setAdapter(profileAdapter);
@@ -202,27 +207,23 @@ public class FragmentProfile extends Fragment {
         });
     }
     protected void setProfile() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            // Name, email address, and profile photo Url
-            name = user.getDisplayName();
-            email = user.getEmail();
-            Uri photoUrl = user.getPhotoUrl();
-            String uid = user.getUid();
-            boolean emailVerified = user.isEmailVerified(); // Check if user's email is verified
+        GlobalUser globalUser = GlobalUser.getInstance();
+        email = globalUser.getEmail();
+        name = globalUser.getName();
+        Log.d(TAG,email+" / "+name);
+        if(globalUser.isLogin()!=false){
 
-            Log.d(TAG,"name:"+name);
-            Log.d(TAG,"email:"+email);
-            Log.d(TAG,"photoURL:"+photoUrl);
-            Log.d(TAG,"uid:"+uid);
-            Log.d(TAG,"emailVerified:"+emailVerified);
-
-            try{
+            if(email != "" && email != null){
                 tvName.setText(email);
-            }catch (Exception e){
-                e.printStackTrace();
+                return;
+            }else if(name != null && name != ""){
+                tvName.setText(name);
+                return;
+            }else{
+                tvName.setText("null");
             }
         }
+
     }
     protected void facebookLogout(){
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -249,12 +250,7 @@ public class FragmentProfile extends Fragment {
                 facebookLogout();
             }
         });
-        ivEditProfile.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
     }
     protected void findView(){
         btLogout = rootView.findViewById(R.id.profile_facebook_logout);
@@ -263,7 +259,6 @@ public class FragmentProfile extends Fragment {
         listView = rootView.findViewById(R.id.profile_listview);
         scrollView = rootView.findViewById(R.id.profile_scrollview);
         listView2 = rootView.findViewById(R.id.profile_listview2);
-        ivEditProfile = rootView.findViewById(R.id.profile_edit_profile);
     }
 
     void println(String message){

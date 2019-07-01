@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@drawable/splash_base"></item>
     <item android:gravity="center">
-        <bitmap android:src="@drawable/connect_logo" android:gravity="center"></bitmap>
+        <bitmap android:src="@drawable/ic_title_white" android:gravity="center"></bitmap>
     </item>
 </layer-list>
 

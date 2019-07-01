@@ -17,6 +17,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:text="text1"
+        android:textSize="22dp"
+        android:textColor="@color/colorBlack"
         android:layout_weight="1"/>
     <TextView
         android:id="@+id/item_profile_text2"

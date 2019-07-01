@@ -11,15 +11,13 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.haeseong.projectline1.R;
+import com.example.haeseong.projectline1.fragment.FragmentBoard;
 import com.example.haeseong.projectline1.fragment.FragmentFind;
-import com.example.haeseong.projectline1.fragment.FragmentMenu2;
 import com.example.haeseong.projectline1.fragment.FragmentChat;
+import com.example.haeseong.projectline1.fragment.FragmentHome;
 import com.example.haeseong.projectline1.fragment.FragmentProfile;
 import com.example.haeseong.projectline1.helper.BottomNavigationHelper;
 
@@ -31,8 +29,7 @@ public class MainActivity extends AppCompatActivity {
     Fragment fragment1, fragment2, fragment3, fragment4;
     BottomNavigationView bottomNavigationView;
     Toolbar toolbar;
-    LinearLayout heartLayout;
-    TextView tvHeartCount;
+
     public Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setToolbar();
         setBottomNavigationView();
         context = this;
-        fragment1 = new FragmentFind();
-        fragment2 = new FragmentMenu2();
+        fragment1 = new FragmentHome();
+        fragment2 = new FragmentBoard();
         fragment3 = new FragmentChat();
         fragment4 = new FragmentProfile();
 
@@ -53,15 +50,6 @@ public class MainActivity extends AppCompatActivity {
     protected  void setToolbar()
     {
         toolbar = findViewById(R.id.toolbar);
-        heartLayout = findViewById(R.id.toolbar_heart_layout);
-        tvHeartCount = findViewById(R.id.toolbar_heart_count);
-
-        heartLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                println("heartLayout onClick()");
-            }
-        });
     }
     protected void setBottomNavigationView()
     {

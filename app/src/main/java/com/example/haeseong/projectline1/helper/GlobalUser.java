@@ -7,6 +7,8 @@ public class GlobalUser {
     private boolean isLogin;
     private String pushToken;
     private int heart;
+    private String email;
+    private String name;
     /**
      * 싱글턴, 하나의 객체만을 사용함.
      * @return
@@ -30,11 +32,11 @@ public class GlobalUser {
         this.jwt = jwt;
     }
 
-    public String myId() {
+    public String getMyId() {
         return myId;
     }
 
-    public void myId(String myId) {
+    public void setMyId(String myId) {
         this.myId = myId;
     }
 
@@ -60,6 +62,22 @@ public class GlobalUser {
 
     public void setHeart(int heart) {
         this.heart = heart;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

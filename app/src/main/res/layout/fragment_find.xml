@@ -5,104 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/friend_add_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:text="친구추가 하기"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/friend_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <FrameLayout
-            android:layout_width="350dp"
-            android:layout_height="350dp"
-            android:layout_marginVertical="10dp">
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/find_viewpager"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorDivision"></android.support.v4.view.ViewPager>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|bottom"
-                android:layout_marginHorizontal="5dp"
-                android:layout_marginVertical="5dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/find_user_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="유저 아이디"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/find_user_area"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="지역"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/find_user_age"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="나이"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/find_user_height"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="키"
-                    android:textColor="@color/colorWhite" />
-            </LinearLayout>
-        </FrameLayout>
-
-        <RatingBar
-            android:id="@+id/find_user_rating_bar"
-            style="@style/Base.Widget.AppCompat.RatingBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:stepSize="1" />
-
-        <Button
-            android:id="@+id/find_view_profile_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5dp"
-            android:background="@color/colorMain"
-            android:text="프로필 보기"
-            android:textColor="@color/colorWhite" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <ImageButton
-                android:id="@+id/find_img_btn_like"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="64dp"
-                android:background="@drawable/ic_kakao" />
-
-            <ImageButton
-                android:id="@+id/find_img_btn_unlike"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginEnd="64dp"
-                android:background="@drawable/ic_facebook" />
-        </RelativeLayout>
-    </LinearLayout>
-
+    </android.support.v7.widget.RecyclerView>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 
 </LinearLayout>
