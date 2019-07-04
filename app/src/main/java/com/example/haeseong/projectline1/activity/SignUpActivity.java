@@ -48,10 +48,10 @@ public class SignUpActivity extends AppCompatActivity {
 //        mAuthListener = new FirebaseAuth.AuthStateListener() {
 //            @Override
 //            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser user = firebaseAuth.getCurrentUser();
-//                if (user != null) {
+//                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+//                if (firebaseUser != null) {
 //                    // User is signed in
-//                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+//                    Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
 //                } else {
 //                    // User is signed out
 //                    Log.d(TAG, "onAuthStateCha
@@ -71,7 +71,7 @@ public class SignUpActivity extends AppCompatActivity {
                     }else if(!isEqualPassword()){
                         println("비밀번호가 같지 않습니다.");
                     }else{
-                        registerUser(etMyEmail.getText().toString(),etPassword.getText().toString(),etMyName.getText().toString());
+                        emailSignUp(etMyEmail.getText().toString(),etPassword.getText().toString(),etMyName.getText().toString());
                     }
                 }catch (Exception E){
                     E.printStackTrace();
@@ -81,7 +81,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
     }//end onCreate
-    public void registerUser(final String email, final String password,final String name){
+    public void emailSignUp(final String email, final String password, final String name){
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -95,8 +95,8 @@ public class SignUpActivity extends AppCompatActivity {
                             etMyId.getText().clear();
                             etCheckPW.getText().clear();
                         }else{
-                            println("회원가입 성공:"+task.isSuccessful());
-                            saveUser(email,password,name); //db에 저장
+                            println("회원가입을 성공하였습니다.: "+task.isSuccessful());
+//                            saveUser(email,password,name); //db에 저장
                             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                             startActivity(intent);
                             finish();

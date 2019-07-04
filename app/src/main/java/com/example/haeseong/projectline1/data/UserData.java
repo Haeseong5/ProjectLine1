@@ -1,75 +1,37 @@
 package com.example.haeseong.projectline1.data;
 
-import java.util.ArrayList;
-
 public class UserData {
-    ArrayList<String> photos = new ArrayList<>();
     String name;
-    String age;
-    String area;
-    String height;
-    String photo;
+    String email;
+    String grade;
+    String school;
+    String photoUri;
 
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
-    public UserData(String photo) {
-        this.photo = photo;
-    }
-
-    public  UserData(){
-
-    }
-    public UserData(ArrayList<String> photos, String name, String age, String area, String height) {
-        this.photos = photos;
+    public UserData(String name, String email, String grade, String school, String photoUri) {
         this.name = name;
-        this.age = age;
-        this.area = area;
-        this.height = height;
-    }
-
-    public ArrayList<String> getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(ArrayList<String> photos) {
-        this.photos = photos;
+        this.email = email;
+        this.grade = grade;
+        this.school = school;
+        this.photoUri = photoUri;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getEmail() {
+        return email;
     }
 
-    public String getAge() {
-        return age;
+    public String getGrade() {
+        return grade;
     }
 
-    public void setAge(String age) {
-        this.age = age;
+    public String getSchool() {
+        return school;
     }
 
-    public String getArea() {
-        return area;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
-    public String getHeight() {
-        return height;
-    }
-
-    public void setHeight(String height) {
-        this.height = height;
+    public String getPhotoUri() {
+        return photoUri;
     }
 }

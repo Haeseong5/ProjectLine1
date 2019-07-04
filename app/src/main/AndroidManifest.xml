@@ -50,6 +50,7 @@
         <activity android:name=".activity.DetailActivity"></activity>
         <activity android:name=".activity.WriteActivity"></activity>
         <activity android:name=".activity.MapsActivity"></activity>
+        <activity android:name=".activity.UpdateProfileActivity"></activity>
 
     </application>
 

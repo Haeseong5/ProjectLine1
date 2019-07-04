@@ -1,9 +1,7 @@
 package com.example.haeseong.projectline1.fragment;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,17 +26,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.activity.LoginActivity;
 import com.example.haeseong.projectline1.activity.MapsActivity;
+import com.example.haeseong.projectline1.activity.UpdateProfileActivity;
 import com.example.haeseong.projectline1.adapter.ProfileAdapter;
 import com.example.haeseong.projectline1.adapter.ProfileAdapter2;
-import com.example.haeseong.projectline1.data.UserData;
 import com.example.haeseong.projectline1.helper.GlobalUser;
 import com.example.haeseong.projectline1.item.ProfileItem;
 import com.facebook.AccessToken;
-import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,6 +45,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -66,12 +63,19 @@ import static android.app.Activity.RESULT_CANCELED;
 public class FragmentProfile extends Fragment {
     private String TAG = "FragmentProfile";
     public static int CAMERA_REQUEST = 100;
+    FirebaseUser user;
+    private StorageReference mStorageRef;
+
     View rootView;
     Button btLogout;
     TextView tvName;
     ImageView ivProfileImage;
-    ListView listView;
+    ListView listView1;
     ListView listView2;
+    ListView listView3;
+    ListView listView4;
+    ListView listView5;
+
     ScrollView scrollView;
 
     ArrayList<ProfileItem> profileItems;
@@ -79,50 +83,25 @@ public class FragmentProfile extends Fragment {
     ProfileAdapter profileAdapter;
     ProfileAdapter2 profileAdapter2;
 
-    private StorageReference mStorageRef;
     String name;
     String email;
+    String image;
     Bitmap bitmap;
 
     @Nullable
     @Override //Fragment가 자신의 UI를 그릴 때 호출합니다. UI를 그리기 위해 메서드에서는 View를 Return 해야 합니다.
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
+        user = FirebaseAuth.getInstance().getCurrentUser();
         findView();
         buttonListener();
         setProfile();
-        setListView();
-        setListView2();
-//        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("email", Context.MODE_PRIVATE);
-//        name = sharedPreferences.getString("uid", "");
-//        email = sharedPreferences.getString("email", "");
+        setMyInfoList();
+        setCustomerCenterList();
+
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
 
-        myRef.child("userPhoto").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String name = dataSnapshot.child("name").getValue().toString();
-                Log.d(TAG, "Value is: " + name);
 
-                String photo = dataSnapshot.child("photo").getValue().toString();
-//                Glide.with(getActivity()).load(photo).into(ivProfileImage);
-//
-//                if(TextUtils.isEmpty(stPhoto)) {
-//                } else {
-//                    Glide.with(getActivity()).load(value).into(ivProfileImage);
-//                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
 
 
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -145,85 +124,27 @@ public class FragmentProfile extends Fragment {
         }
         ivProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, CAMERA_REQUEST);
             }
         });
-
-
         return rootView;
     }
-    protected void setListView2(){
-        profileItems2 = new ArrayList<>();
-
-        profileItems2.add("동아리 정보");
-        profileItems2.add("학원");
-        profileItems2.add("스터디 카페");
-        profileItems2.add("독서실");
-        profileItems2.add("급식");
-
-        profileAdapter2 = new ProfileAdapter2(getActivity(), profileItems2);
-        listView2.setAdapter(profileAdapter2);
-        listViewHeightSet(profileAdapter2,listView2);
-        listView2.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    return true;
-                }
-                return false;
-            }
-        });
-        listView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), MapsActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
-    protected void setListView() {
-        profileItems = new ArrayList<>();
-
-        profileItems.add(new ProfileItem("내가 쓴 글", R.mipmap.ic_app, "0"));
-        profileItems.add(new ProfileItem("내가 댓글 단 글", R.mipmap.ic_app, "0"));
-        profileItems.add(new ProfileItem("친구에게 소개하기", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("공지사항/이벤트", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("도움말", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("문의하기", R.mipmap.ic_app, getString(R.string.blank)));
-
-        profileAdapter = new ProfileAdapter(getActivity(), profileItems);
-        listView.setAdapter(profileAdapter);
-        listViewHeightSet(profileAdapter,listView);
-        listView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    return true;
-                }
-                return false;
-            }
-        });
-    }
     protected void setProfile() {
-        GlobalUser globalUser = GlobalUser.getInstance();
-        email = globalUser.getEmail();
-        name = globalUser.getName();
-        Log.d(TAG,email+" / "+name);
-        if(globalUser.isLogin()!=false){
-
-            if(email != "" && email != null){
-                tvName.setText(email);
-                return;
-            }else if(name != null && name != ""){
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            name = user.getDisplayName();
+            email = user.getEmail();
+            image = String.valueOf(user.getPhotoUrl());
+            ivProfileImage.setImageURI(user.getPhotoUrl());
+            Log.d("image uri :", String.valueOf(user.getPhotoUrl()));
+            if(name !="" && name != null){
                 tvName.setText(name);
-                return;
             }else{
-                tvName.setText("null");
+                tvName.setText(email);
             }
         }
-
     }
     protected void facebookLogout(){
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -250,13 +171,78 @@ public class FragmentProfile extends Fragment {
                 facebookLogout();
             }
         });
-
     }
+    protected void setMyInfoList() {
+        profileItems = new ArrayList<>();
+        profileItems.add(new ProfileItem("프로필 수정", R.mipmap.ic_app, getString(R.string.blank)));
+        profileItems.add(new ProfileItem("학교인증", R.mipmap.ic_app, getString(R.string.blank)));
+        profileItems.add(new ProfileItem("내가 쓴 글", R.mipmap.ic_app, "0"));
+        profileItems.add(new ProfileItem("내가 댓글 단 글", R.mipmap.ic_app, "0"));
+
+        profileAdapter = new ProfileAdapter(getActivity(), profileItems);
+        listView1.setAdapter(profileAdapter);
+        listViewHeightSet(profileAdapter, listView1);
+
+        listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getActivity(), profileItems.get(position).getText(),Toast.LENGTH_SHORT).show();
+                switch (position){
+                    case 0:
+                        Intent intent = new Intent(getActivity(), UpdateProfileActivity.class);
+                        intent.putExtra("name", name);
+//                        intent.putExtra("school", school);
+//                        intent.putExtra("grade", grade);
+                        intent.putExtra("image", image);
+
+                        startActivity(intent);
+                }
+
+            }
+        });
+        listView1.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+    protected void setCustomerCenterList(){
+        profileItems2 = new ArrayList<>();
+        profileItems2.add("공지사항 / 이벤트");
+        profileItems2.add("친구에게 소개하기");
+        profileItems2.add("도움말");
+        profileItems2.add("문의하기");
+
+        profileAdapter2 = new ProfileAdapter2(getActivity(), profileItems2);
+        listView2.setAdapter(profileAdapter2);
+        listViewHeightSet(profileAdapter2,listView2);
+        listView2.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        listView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
     protected void findView(){
         btLogout = rootView.findViewById(R.id.profile_facebook_logout);
         tvName = rootView.findViewById(R.id.profile_name_text);
         ivProfileImage = rootView.findViewById(R.id.profile_image);
-        listView = rootView.findViewById(R.id.profile_listview);
+        listView1 = rootView.findViewById(R.id.profile_listview);
         scrollView = rootView.findViewById(R.id.profile_scrollview);
         listView2 = rootView.findViewById(R.id.profile_listview2);
     }
@@ -296,10 +282,56 @@ public class FragmentProfile extends Fragment {
         }
 
     }
+    protected void updatePhotoUri(){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference usersRef = db.collection("users").document(user.getUid());
+//        db.collection("users").document(firebaseUser.getUid()).set(userData)
 
+// Set the "isCapital" field of the city 'DC'
+        usersRef
+                .update("photoUri", )
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+                    }
+                });
+    }
+    protected getPhoroUri(){
+        final StorageReference ref = storageRef.child("images/mountains.jpg");
+        uploadTask = ref.putFile(file);
+
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return ref.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            }
+        });
+
+    }
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
                 // If request is cancelled, the result arrays are empty.
@@ -318,8 +350,7 @@ public class FragmentProfile extends Fragment {
         }
     }
     public void uploadImage(){
-
-        StorageReference mountainsRef = mStorageRef.child("userProfile").child(name+".jpg");
+        StorageReference mountainsRef = mStorageRef.child("profile_images/"+user.getUid()).child(name+".jpg");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -359,6 +390,7 @@ public class FragmentProfile extends Fragment {
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(getActivity(), "사진 업로드를 취소했습니다.", Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -369,5 +401,33 @@ public class FragmentProfile extends Fragment {
     }
 
 
-
+//    protected void setCustomerCenterList(){
+//        profileItems2 = new ArrayList<>();
+//
+//        profileItems2.add("동아리 정보");
+//        profileItems2.add("학원");
+//        profileItems2.add("스터디 카페");
+//        profileItems2.add("독서실");
+//        profileItems2.add("급식");
+//
+//        profileAdapter2 = new ProfileAdapter2(getActivity(), profileItems2);
+//        listView2.setAdapter(profileAdapter2);
+//        listViewHeightSet(profileAdapter2,listView2);
+//        listView2.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_MOVE) {
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+//        listView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Intent intent = new Intent(getActivity(), MapsActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+//    }
 }

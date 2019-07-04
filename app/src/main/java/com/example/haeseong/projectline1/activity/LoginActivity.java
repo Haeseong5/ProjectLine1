@@ -30,29 +30,39 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 
 import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
     String TAG = "LoginActivity";
     private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private CallbackManager mCallbackManager;
+    FirebaseUser firebaseUser;
+
     EditText etEmail;
     EditText etPassword;
     Button btLoginEmail;
     Button btLoginFacebook;
-    Button btGoogleLogin;
     TextView tvSignUp;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private CallbackManager mCallbackManager;
+
     String name;
     String email;
+    boolean nameCheck;
+    boolean emailCheck;
+//    boolean schoolCheck;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // 파이어베이스 인증 객체 선언
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        boolean schoolCheck = false;
         findView();
         setClickListener();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -155,18 +165,18 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithEmail", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "로그인 실패...", Toast.LENGTH_SHORT).show();
                         } else {
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            Toast.makeText(LoginActivity.this, "Authentication success.",
-                                    Toast.LENGTH_SHORT).show();
+                            if(checkUserInfo() != true){
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                Toast.makeText(LoginActivity.this, "로그인 성공...", Toast.LENGTH_SHORT).show();
+                            } else{
+                                Intent intent = new Intent(LoginActivity.this, UpdateProfileActivity.class);
+                                startActivity(intent);
+                            }
                             setProfile();
                             finish();
                         }
@@ -175,14 +185,13 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     protected void setProfile() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
+        if (firebaseUser != null) {
             // Name, email address, and profile photo Url
-            name = user.getDisplayName();
-            email = user.getEmail();
-            Uri photoUrl = user.getPhotoUrl();
-            String uid = user.getUid();
-            boolean emailVerified = user.isEmailVerified(); // Check if user's email is verified
+            name = firebaseUser.getDisplayName();
+            email = firebaseUser.getEmail();
+            Uri photoUrl = firebaseUser.getPhotoUrl();
+            String uid = firebaseUser.getUid();
+            boolean emailVerified = firebaseUser.isEmailVerified(); // Check if firebaseUser's email is verified
 
             Log.d(TAG,"name:"+name);
             Log.d(TAG,"email:"+email);
@@ -263,24 +272,52 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if firebaseUser is signed in (non-null) and update UI accordingly.
         // 사용자가 로그인 되어있는 지 확인
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         firebaseAuth.addAuthStateListener(mAuthListener);
+        if(checkUserInfo() != true){
+            autoLogin(currentUser);
+        }else{
+            Intent intent = new Intent(LoginActivity.this, UpdateProfileActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+    protected  boolean checkUserInfo(){
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        autoLogin(currentUser);
-
+        boolean checkResult = false;
+        if (firebaseUser != null) {
+            for (UserInfo profile : firebaseUser.getProviderData()) {
+                // Name, email address, and profile photo Url
+                boolean unName = profile.getDisplayName() == null || profile.getDisplayName() == "";
+                boolean unEmail = profile.getEmail() == null ||  profile.getEmail() == "";
+                boolean unSchool = false;
+// 머신러닝 기술 활용 이름 학교 실명인증
+                if(unName || unEmail == true){
+                    //이름이나 이메일이 등록이 안 되어있는 경우
+                    checkResult = true;
+                }else{
+                    checkResult = false;
+                }
+            }
+        }else{
+            Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+            startActivity(intent);
+        }
+        return checkResult;
     }
     protected void autoLogin(FirebaseUser currentUser){
         if (currentUser != null) {
             // User is signed in
-            println("자동로그인 되었습니다."+currentUser.getUid());
+            println("자동로그인 되었습니다. "+currentUser.getEmail());
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             setProfile();
             finish();
         } else {
-            // No user is signed in
+            // No firebaseUser is signed in
         }
     }
 
@@ -289,6 +326,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        overridePendingTransition(0,0);
+        //액티비티 애니메이션 x
+    }
     @Override
     public void onStop() {
         super.onStop();

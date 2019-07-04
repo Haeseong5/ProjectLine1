@@ -52,18 +52,100 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@color/colorDivision">
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorDivision">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="커뮤니티"
+                        android:textSize="16dp"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="10dp" />
+                </LinearLayout>
                 <ListView
                     android:id="@+id/profile_listview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scrollbars="none"
-                    android:background="@color/colorWhite"
-                    android:layout_marginVertical="10dp">
+                    android:background="@color/colorWhite">
                 </ListView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorDivision">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="계정"
+                        android:textSize="16dp"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="10dp" />
+                </LinearLayout>
                 <ListView
                     android:id="@+id/profile_listview2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_weight="1"
+                    android:background="@color/colorWhite">
+                </ListView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorDivision">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="서비스"
+                        android:textSize="16dp"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="10dp" />
+                </LinearLayout>
+                <ListView
+                    android:id="@+id/profile_listview3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_weight="1"
+                    android:background="@color/colorWhite">
+                </ListView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorDivision">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="고객센터"
+                        android:textSize="16dp"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="10dp" />
+                </LinearLayout>
+                <ListView
+                    android:id="@+id/profile_listview4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_weight="1"
+                    android:background="@color/colorWhite">
+                </ListView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorDivision">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="기타"
+                        android:textSize="16dp"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="10dp" />
+                </LinearLayout>
+                <ListView
+                    android:id="@+id/profile_listview5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scrollbars="none"
