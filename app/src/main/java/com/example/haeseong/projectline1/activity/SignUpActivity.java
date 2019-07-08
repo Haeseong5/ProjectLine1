@@ -1,6 +1,7 @@
 package com.example.haeseong.projectline1.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,25 +14,27 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.haeseong.projectline1.R;
+import com.example.haeseong.projectline1.data.UserData;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Hashtable;
 import java.util.regex.Pattern;
 
 public class SignUpActivity extends AppCompatActivity {
     static private String TAG = SignUpActivity.class.getSimpleName();
     EditText etMyEmail;
-    EditText etMyName;
     EditText etPassword;
-    EditText etMyId;
     EditText etCheckPW;
+    EditText etName;
     Button btSignUpOk;
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
@@ -45,21 +48,7 @@ public class SignUpActivity extends AppCompatActivity {
         setView();
         database = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
-//        mAuthListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-//                if (firebaseUser != null) {
-//                    // User is signed in
-//                    Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
-//                } else {
-//                    // User is signed out
-//                    Log.d(TAG, "onAuthStateCha
-// nged:signed_out");
-//                }
-//                // ...
-//            }
-//        };
+
         btSignUpOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
                     }else if(!isEqualPassword()){
                         println("비밀번호가 같지 않습니다.");
                     }else{
-                        emailSignUp(etMyEmail.getText().toString(),etPassword.getText().toString(),etMyName.getText().toString());
+                        emailSignUp(etMyEmail.getText().toString(),etPassword.getText().toString());
                     }
                 }catch (Exception E){
                     E.printStackTrace();
@@ -81,7 +70,8 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
     }//end onCreate
-    public void emailSignUp(final String email, final String password, final String name){
+
+    public void emailSignUp(final String email, final String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -90,36 +80,36 @@ public class SignUpActivity extends AppCompatActivity {
                         if (!task.isSuccessful()) {
                             println("회원가입 실패:"+task.isSuccessful());
                             etMyEmail.getText().clear();
-                            etMyName.getText().clear();
                             etPassword.getText().clear();
-                            etMyId.getText().clear();
                             etCheckPW.getText().clear();
+                            etName.getText().clear();
                         }else{
-                            println("회원가입을 성공하였습니다.: "+task.isSuccessful());
-//                            saveUser(email,password,name); //db에 저장
-                            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
+                            setUserInfo(etName.getText().toString());
                         }
                     }
                 });
     }
 
-    private void saveUser(String email, String pw, String name){
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = df.format(c.getTime());
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("users").child(name);
-
-        Hashtable<String, String> user = new Hashtable<String, String>();
-        user.put("email", email);
-        user.put("password", pw);
-        user.put("name", name);
-        user.put("time", formattedDate); //가입시간
-
-        myRef.setValue(user);
+    protected void setUserInfo(final String name){ //파이어베이스유저 이름 지정.
+        String photo = "https://postfiles.pstatic.net/MjAxOTA3MDRfMTIx/MDAxNTYyMjQ0OTE0MTQ1.la5QOf76e1hLoFYnwP8j8ydqd8GtwBabUfd0ZyKym-gg.MXaoiLY8YLLYhHYt2I8PqVq_X2UdgE0axjcNwkZSvPog.JPEG.g_sftdvp/siina.jpg?type=w966";
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .setPhotoUri(Uri.parse(photo))
+                .build();
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("SignUpActivity", String.valueOf(user.getPhotoUrl()));
+                            Toast.makeText(SignUpActivity.this,"회원가입이 완료되었습니당! "+name,Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SignUpActivity.this, UpdateProfileActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
     }
 
 
@@ -164,11 +154,10 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void setView(){
         etMyEmail = findViewById(R.id.signup_email);
-        etMyName = findViewById(R.id.signup_name);
         etPassword = findViewById(R.id.signup_password);
         btSignUpOk = findViewById(R.id.signup_button);
-        etMyId = findViewById(R.id.signup_id);
         etCheckPW = findViewById(R.id.signup_password_check);
+        etName = findViewById(R.id.signup_name);
     }
     void println(String message){
         Log.d(TAG, message);

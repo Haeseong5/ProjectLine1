@@ -1,14 +1,21 @@
 package com.example.haeseong.projectline1.helper;
 
+import com.example.haeseong.projectline1.data.Comment;
+import com.example.haeseong.projectline1.data.Post;
+
+import java.util.ArrayList;
+
 public class GlobalUser {
     private static GlobalUser instance = null;
-    private String jwt;
-    private String myId;
-    private boolean isLogin;
-    private String pushToken;
-    private int heart;
-    private String email;
     private String name;
+    private String nickName;
+    private String email;
+    private String grade;
+    private String school;
+    private String photo;
+    private String sex;
+    private ArrayList<Post> posts;
+    private ArrayList<Comment> comments;
     /**
      * 싱글턴, 하나의 객체만을 사용함.
      * @return
@@ -24,44 +31,20 @@ public class GlobalUser {
         return instance;
     }
 
-    public String getJwt() {
-        return jwt;
+    public String getName() {
+        return name;
     }
 
-    public void setJwt(String jwt) {
-        this.jwt = jwt;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getMyId() {
-        return myId;
+    public String getNickName() {
+        return nickName;
     }
 
-    public void setMyId(String myId) {
-        this.myId = myId;
-    }
-
-    public String getPushToken() {
-        return pushToken;
-    }
-
-    public void setPushToken(String pushToken) {
-        this.pushToken = pushToken;
-    }
-
-    public boolean isLogin() {
-        return isLogin;
-    }
-
-    public void setLogin(boolean login) {
-        isLogin = login;
-    }
-
-    public int getHeart() {
-        return heart;
-    }
-
-    public void setHeart(int heart) {
-        this.heart = heart;
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getEmail() {
@@ -72,19 +55,51 @@ public class GlobalUser {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
+    public String getGrade() {
+        return grade;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGrade(String grade) {
+        this.grade = grade;
     }
 
-    @Override
-    public String toString() {
-        return "GlobalUser{" +
-                "jwt='" + jwt + '\'' +
-                ", my_id='" + myId + '\'' +
-                '}';
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public ArrayList<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(ArrayList<Post> posts) {
+        this.posts = posts;
+    }
+
+    public ArrayList<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(ArrayList<Comment> comments) {
+        this.comments = comments;
     }
 }

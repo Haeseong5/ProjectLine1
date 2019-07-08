@@ -60,11 +60,23 @@
             android:layout_gravity="left"
             android:text="grade"/>
         <EditText
-            android:id="@+id/update_profile_age"
+            android:id="@+id/update_profile_grade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:hint="grade"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_gravity="left"
+            android:text="sex"/>
+        <EditText
+            android:id="@+id/update_profile_sex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:hint="sex"/>
     </LinearLayout>
 
 

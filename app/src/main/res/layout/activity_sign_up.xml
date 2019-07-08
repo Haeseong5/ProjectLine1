@@ -39,12 +39,11 @@
             android:textSize="16sp"
             android:background="@drawable/edittext_style"
             android:paddingHorizontal="10dp" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:text="닉네임" />
+            android:text="이름" />
 
         <EditText
             android:id="@+id/signup_name"
@@ -55,6 +54,7 @@
             android:textSize="16sp"
             android:background="@drawable/edittext_style"
             android:paddingHorizontal="10dp" />
+
 
         <TextView
             android:layout_width="wrap_content"
@@ -89,23 +89,6 @@
             android:background="@drawable/edittext_style"
             android:inputType="textPassword"
             android:paddingHorizontal="10dp" />
-        <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-
-        android:text="아이디" />
-
-        <EditText
-        android:id="@+id/signup_id"
-        android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/edittext_style"
-        android:textColor="#878787"
-        android:textSize="16sp"
-        android:paddingHorizontal="10dp" />
-
     </LinearLayout>
 
     <Button

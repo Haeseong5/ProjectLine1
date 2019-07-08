@@ -40,11 +40,11 @@ public class FragmentBoard extends android.support.v4.app.Fragment {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             // Name, email address, and profile photo Url
-//            name = user.getDisplayName();
-//            email = user.getEmail();
-//            Uri photoUrl = user.getPhotoUrl();
-//            String uid = user.getUid();
-//            boolean emailVerified = user.isEmailVerified(); // Check if user's email is verified
+//            name = mFireBaseUser.getDisplayName();
+//            email = mFireBaseUser.getEmail();
+//            Uri photoUrl = mFireBaseUser.getPhotoUrl();
+//            String uid = mFireBaseUser.getUid();
+//            boolean emailVerified = mFireBaseUser.isEmailVerified(); // Check if mFireBaseUser's email is verified
 //
 //            Log.d(TAG,"name:"+name);
 //            Log.d(TAG,"email:"+email);

@@ -26,49 +26,43 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.activity.LoginActivity;
 import com.example.haeseong.projectline1.activity.MapsActivity;
 import com.example.haeseong.projectline1.activity.UpdateProfileActivity;
 import com.example.haeseong.projectline1.adapter.ProfileAdapter;
 import com.example.haeseong.projectline1.adapter.ProfileAdapter2;
+import com.example.haeseong.projectline1.data.UserData;
 import com.example.haeseong.projectline1.helper.GlobalUser;
 import com.example.haeseong.projectline1.item.ProfileItem;
 import com.facebook.AccessToken;
-import com.facebook.login.LoginManager;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
 
 import static android.app.Activity.RESULT_CANCELED;
 
 public class FragmentProfile extends Fragment {
     private String TAG = "FragmentProfile";
     public static int CAMERA_REQUEST = 100;
-    FirebaseUser user;
+    FirebaseUser mFireBaseUser;
     private StorageReference mStorageRef;
-
+    GlobalUser globalUser;
     View rootView;
     Button btLogout;
     TextView tvName;
+    TextView tvSchool;
+    TextView tvGrade;
+
     ImageView ivProfileImage;
     ListView listView1;
     ListView listView2;
@@ -82,7 +76,7 @@ public class FragmentProfile extends Fragment {
     ArrayList<String> profileItems2;
     ProfileAdapter profileAdapter;
     ProfileAdapter2 profileAdapter2;
-
+    FirebaseFirestore db;
     String name;
     String email;
     String image;
@@ -92,25 +86,24 @@ public class FragmentProfile extends Fragment {
     @Override //Fragment가 자신의 UI를 그릴 때 호출합니다. UI를 그리기 위해 메서드에서는 View를 Return 해야 합니다.
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        mFireBaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+        globalUser = GlobalUser.getInstance();
         findView();
         buttonListener();
         setProfile();
+//        readUser_FireStore();
         setMyInfoList();
         setCustomerCenterList();
-
         mStorageRef = FirebaseStorage.getInstance().getReference();
-
-
-
 
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                     android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
+                // Show an expanation to the mFireBaseUser *asynchronously* -- don't block
+                // this thread waiting for the mFireBaseUser's response! After the mFireBaseUser
                 // sees the explanation, try again to request the permission.
             } else {
                 // No explanation needed, we can request the permission.
@@ -131,44 +124,22 @@ public class FragmentProfile extends Fragment {
         });
         return rootView;
     }
-    protected void setProfile() {
-//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            name = user.getDisplayName();
-            email = user.getEmail();
-            image = String.valueOf(user.getPhotoUrl());
-            ivProfileImage.setImageURI(user.getPhotoUrl());
-            Log.d("image uri :", String.valueOf(user.getPhotoUrl()));
-            if(name !="" && name != null){
-                tvName.setText(name);
-            }else{
-                tvName.setText(email);
-            }
-        }
+    protected void setProfile(){
+        tvName.setText(globalUser.getName());
+        tvSchool.setText(globalUser.getSchool());
+        Glide.with(getActivity()).load(globalUser.getPhoto()).into(ivProfileImage);
     }
-    protected void facebookLogout(){
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedIn = (accessToken != null) && (!accessToken.isExpired()); //액세스토큰이 null이 아니고 만료되지 않았다면
 
-        GlobalUser.getInstance().setPushToken(String.valueOf(accessToken));
-        GlobalUser.getInstance().setLogin(isLoggedIn);
-        println("로그인 여부:" + String.valueOf(isLoggedIn)+"/"+GlobalUser.getInstance().isLogin());
-        if(GlobalUser.getInstance().isLogin() == false)
-        {
-            println("페이스북 로그아웃 success");
-            FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            startActivity(intent);
-            getActivity().finish();
-        }
-    }
+
     protected void buttonListener()
     {
         btLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LoginManager.getInstance().logOut();
-                facebookLogout();
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
             }
         });
     }
@@ -242,6 +213,7 @@ public class FragmentProfile extends Fragment {
         btLogout = rootView.findViewById(R.id.profile_facebook_logout);
         tvName = rootView.findViewById(R.id.profile_name_text);
         ivProfileImage = rootView.findViewById(R.id.profile_image);
+        tvSchool = rootView.findViewById(R.id.profile_school_text);
         listView1 = rootView.findViewById(R.id.profile_listview);
         scrollView = rootView.findViewById(R.id.profile_scrollview);
         listView2 = rootView.findViewById(R.id.profile_listview2);
@@ -274,7 +246,7 @@ public class FragmentProfile extends Fragment {
                 try {
                     bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), image);
                     ivProfileImage.setImageBitmap(bitmap);
-                    uploadImage();
+//                    uploadImage();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -282,54 +254,7 @@ public class FragmentProfile extends Fragment {
         }
 
     }
-    protected void updatePhotoUri(){
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference usersRef = db.collection("users").document(user.getUid());
-//        db.collection("users").document(firebaseUser.getUid()).set(userData)
 
-// Set the "isCapital" field of the city 'DC'
-        usersRef
-                .update("photoUri", )
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully updated!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error updating document", e);
-                    }
-                });
-    }
-    protected getPhoroUri(){
-        final StorageReference ref = storageRef.child("images/mountains.jpg");
-        uploadTask = ref.putFile(file);
-
-        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-            @Override
-            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                if (!task.isSuccessful()) {
-                    throw task.getException();
-                }
-
-                // Continue with the task to get the download URL
-                return ref.getDownloadUrl();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-            @Override
-            public void onComplete(@NonNull Task<Uri> task) {
-                if (task.isSuccessful()) {
-                    Uri downloadUri = task.getResult();
-                } else {
-                    // Handle failures
-                    // ...
-                }
-            }
-        });
-
-    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -349,56 +274,7 @@ public class FragmentProfile extends Fragment {
             // permissions this app might request
         }
     }
-    public void uploadImage(){
-        StorageReference mountainsRef = mStorageRef.child("profile_images/"+user.getUid()).child(name+".jpg");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        UploadTask uploadTask = mountainsRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @SuppressWarnings("VisibleForTests")
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                String photoUri =  String.valueOf(downloadUrl);
-                Log.d("url", photoUri);
-
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference myRef = database.getReference("userPhoto");
-
-                Hashtable<String, String> profile = new Hashtable<String, String>();
-                profile.put("name", name);
-                profile.put("photo",  photoUri);
-                myRef.child(name).setValue(profile);
-                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String s = dataSnapshot.getValue().toString();
-                        Log.d("Profile", s);
-                        if (dataSnapshot != null) {
-                            Toast.makeText(getActivity(), "사진 업로드가 잘 됐습니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    } //변경이 아닌 추가 코드..
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(getActivity(), "사진 업로드를 취소했습니다.", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
-
-            }
-        });
-    }
 
 
 //    protected void setCustomerCenterList(){
