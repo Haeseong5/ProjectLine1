@@ -29,40 +29,9 @@ public class FragmentBoard extends android.support.v4.app.Fragment {
         boardAdapter = new BoardAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity())) ;
         recyclerView.setAdapter(boardAdapter);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null){
-            name = user.getDisplayName();
-            email = user.getEmail();
-        }
+
         return rootView;
     }
-    protected void setProfile() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            // Name, email address, and profile photo Url
-//            name = mFireBaseUser.getDisplayName();
-//            email = mFireBaseUser.getEmail();
-//            Uri photoUrl = mFireBaseUser.getPhotoUrl();
-//            String uid = mFireBaseUser.getUid();
-//            boolean emailVerified = mFireBaseUser.isEmailVerified(); // Check if mFireBaseUser's email is verified
-//
-//            Log.d(TAG,"name:"+name);
-//            Log.d(TAG,"email:"+email);
-//            Log.d(TAG,"photoURL:"+photoUrl);
-//            Log.d(TAG,"uid:"+uid);
-//            Log.d(TAG,"emailVerified:"+emailVerified);
-//
-//            try{
-//                if(name != null ||name !=  ""){
-//                    tvName.setText(email);
-//                } else if (email != null || email != "") {
-//                    tvName.setText(email);
-//                } else{
-//                    tvName.setText("null");
-//                }
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-        }
-    }
+
+
 }

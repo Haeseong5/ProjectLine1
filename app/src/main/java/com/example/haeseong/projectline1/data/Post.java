@@ -1,17 +1,15 @@
 package com.example.haeseong.projectline1.data;
 
+import java.util.ArrayList;
+
 public class Post {
     String title;
     String content;
-    String time;
-    String name;
-
-    public Post(String title, String content, String time, String name) {
-        this.title = title;
-        this.content = content;
-        this.time = time;
-        this.name = name;
-    }
+    String timeStamp;
+    String writer;
+    String school;
+    ArrayList<String> comment;
+    String uid;
 
     public String getTitle() {
         return title;
@@ -29,19 +27,43 @@ public class Post {
         this.content = content;
     }
 
-    public String getTime() {
-        return time;
+    public String getTimeStamp() {
+        return timeStamp;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
-    public String getName() {
-        return name;
+    public String getWriter() {
+        return writer;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setWriter(String writer) {
+        this.writer = writer;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public ArrayList<String> getComment() {
+        return comment;
+    }
+
+    public void setComment(ArrayList<String> comment) {
+        this.comment = comment;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

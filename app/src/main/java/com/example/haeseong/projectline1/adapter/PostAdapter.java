@@ -60,8 +60,8 @@ public class PostAdapter extends BaseAdapter{
         // 아이템 내 각 위젯에 데이터 반영
         tvTitle.setText(post.getTitle());
         tvContent.setText(post.getContent());
-        tvTime.setText(post.getTime());
-        tvName.setText(post.getName());
+        tvTime.setText(post.getTimeStamp());
+        tvName.setText(post.getWriter());
         return convertView;
     }
 }

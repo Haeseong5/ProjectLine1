@@ -3,6 +3,7 @@ package com.example.haeseong.projectline1.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +18,16 @@ import android.widget.Toast;
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.adapter.PostAdapter;
 import com.example.haeseong.projectline1.data.Post;
+import com.example.haeseong.projectline1.data.UserData;
 import com.example.haeseong.projectline1.helper.GlobalUser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +36,7 @@ public class PostActivity extends AppCompatActivity {
     private static final String TAG = "PostActivity";
     private final int WRITE_CODE = 101;
     private final int UPDATE_CODE = 102;
+    FirebaseFirestore db;
 
     ListView listView;
     PostAdapter postAdapter;
@@ -36,32 +47,34 @@ public class PostActivity extends AppCompatActivity {
     ImageView ivWrite;
     int position;
     String[] boardTitle = new String[5];
+    String[] boardId = new String[5];
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
+        db = FirebaseFirestore.getInstance();
         listView = findViewById(R.id.post_listview);
         board_toolbar = findViewById(R.id.post_board_toolbar);
         tvBoardTitle = findViewById(R.id.post_board_title);
         ivSearch = findViewById(R.id.post_search_image);
         ivWrite = findViewById(R.id.post_write_image);
         posts = new ArrayList<>();
-        boardTitle[0] = "자유게시판";
-        boardTitle[1] = "과외게시판";
-        boardTitle[2] = "입시게시판";
-        boardTitle[3] = "중고 장터";
+        boardTitle[0] = "자유게시판";    boardId[0] = "free_board";
+        boardTitle[1] = "과외게시판";    boardId[1] = "study_board";
+        boardTitle[2] = "입시게시판";    boardId[2] = "univ_board";
+        boardTitle[3] = "중고 장터";     boardId[3] = "market_board";
+
         Intent intent = getIntent();
         if(intent != null){
             position = intent.getExtras().getInt("position");
             tvBoardTitle.setText(boardTitle[position]);
         }
+        readPosts();
+
         Toast.makeText(getApplicationContext(), position+boardTitle[position], Toast.LENGTH_SHORT).show();
-        for(int i=0; i<5; i++){
-            posts.add(new Post("포스트제목"+i,"포스트내용"+i,"방금","익명"));
-        }
+
         postAdapter = new PostAdapter(getApplicationContext(), posts, position);
-        listView.setAdapter(postAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
              * ListView의 Item을 Click 할 때 수행할 동작
@@ -79,10 +92,10 @@ public class PostActivity extends AppCompatActivity {
                 position = posts.size()-1-position;
                 // new Intent(현재 Activity의 Context, 시작할 Activity 클래스)
                 Intent intent = new Intent(PostActivity.this, DetailActivity.class);;
-                intent.putExtra("name", posts.get(position).getName());
+                intent.putExtra("name", posts.get(position).getWriter());
                 intent.putExtra("title", posts.get(position).getTitle());
                 intent.putExtra("content", posts.get(position).getContent());
-                intent.putExtra("time", posts.get(position).getTime());
+                intent.putExtra("time", posts.get(position).getTimeStamp());
                 intent.putExtra("position", position);
                 startActivity(intent);
             }
@@ -91,7 +104,10 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PostActivity.this, WriteActivity.class);
+                intent.putExtra("position",position);
+                println(String.valueOf(position));
                 startActivityForResult(intent,WRITE_CODE);
+                finish();
             }
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -106,6 +122,33 @@ public class PostActivity extends AppCompatActivity {
 
     }
 
+    protected void readPosts(){ //갯수한정해야함. 페이징?기법 찾아보기
+        db.collection(boardId[position])
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Post post = document.toObject(Post.class);
+                                Log.d("post", post.getTitle());
+                                posts.add(post);
+                                Log.d("post", String.valueOf(posts.size()));
+//                                for(int i=0; i<5; i++){
+//                                    posts.add(new Post("포스트제목"+i,"포스트내용"+i,"방금","익명"));
+//                                }
+                                println("readPost Success");
+                                listView.setAdapter(postAdapter);
+
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -113,12 +156,13 @@ public class PostActivity extends AppCompatActivity {
             switch (requestCode){
 // MainActivity 에서 요청할 때 보낸 요청 코드 (3000)
                 case WRITE_CODE:
-                    String title = data.getStringExtra("title");
-                    String content = data.getStringExtra("content");
-                    String time = data.getStringExtra("time");
-                    String name = data.getStringExtra("name");
-                    posts.add(new Post(title,content,time,name));
-                    println(time);
+//                    String title = data.getStringExtra("title");
+//                    String content = data.getStringExtra("content");
+//                    String time = data.getStringExtra("time");
+//                    String name = data.getStringExtra("name");
+////                    posts.add(new Post(title,content,time,name));
+//                    println(time);
+                    readPosts();
                     break;
                 case UPDATE_CODE:
                     String updateTitle = data.getStringExtra("title");
@@ -127,8 +171,8 @@ public class PostActivity extends AppCompatActivity {
                     String updateName = data.getStringExtra("name");
                     int position = data.getIntExtra("position",-1);
                     println(String.valueOf(position));
-                    Post updatePost = new Post(updateTitle,updateContent,updateTime,updateName);
-                    posts.set(position, updatePost);
+//                    Post updatePost = new Post(updateTitle,updateContent,updateTime,updateName);
+//                    posts.set(position, updatePost);
                     break;
             }
         }
@@ -163,6 +207,7 @@ public class PostActivity extends AppCompatActivity {
                         intent.putExtra("title", posts.get(position).getTitle());
                         intent.putExtra("content", posts.get(position).getContent());
                         intent.putExtra("position", position);
+                        println(String.valueOf(position));
                         startActivityForResult(intent,UPDATE_CODE );
                         break;
                     case 1:
