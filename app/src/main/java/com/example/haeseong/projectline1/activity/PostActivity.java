@@ -21,11 +21,13 @@ import com.example.haeseong.projectline1.data.Post;
 import com.example.haeseong.projectline1.data.UserData;
 import com.example.haeseong.projectline1.helper.GlobalUser;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -34,8 +36,8 @@ import java.util.List;
 
 public class PostActivity extends AppCompatActivity {
     private static final String TAG = "PostActivity";
-    private final int WRITE_CODE = 101;
-    private final int UPDATE_CODE = 102;
+    public static final int WRITE_CODE = 101;
+    public static final int UPDATE_CODE = 102;
     FirebaseFirestore db;
 
     ListView listView;
@@ -70,11 +72,13 @@ public class PostActivity extends AppCompatActivity {
             position = intent.getExtras().getInt("position");
             tvBoardTitle.setText(boardTitle[position]);
         }
-        readPosts();
 
         Toast.makeText(getApplicationContext(), position+boardTitle[position], Toast.LENGTH_SHORT).show();
 
         postAdapter = new PostAdapter(getApplicationContext(), posts, position);
+//        listView.setAdapter(postAdapter);
+        readPosts();
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
              * ListView의 Item을 Click 할 때 수행할 동작
@@ -105,25 +109,45 @@ public class PostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(PostActivity.this, WriteActivity.class);
                 intent.putExtra("position",position);
+                intent.putExtra("REQUEST_CODE",WRITE_CODE);
                 println(String.valueOf(position));
                 startActivityForResult(intent,WRITE_CODE);
-                finish();
             }
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                position = posts.size()-position-1;
-                openDialog(position);
-                println(String.valueOf(position));
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int i, long id) {
+                i = posts.size()-i-1;
+                openDialog(i);
+                println(String.valueOf(i));
                 return false;
             }
         });
 
     }
 
+    protected void deletePost(int i){
+        db.collection(boardId[position]).document(posts.get(i).getDocID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                        println("success delete");
+                        readPosts();
+                        postAdapter.notifyDataSetChanged();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
+    }
     protected void readPosts(){ //갯수한정해야함. 페이징?기법 찾아보기
         db.collection(boardId[position])
+                .orderBy("timeStamp", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -132,14 +156,18 @@ public class PostActivity extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Post post = document.toObject(Post.class);
-                                Log.d("post", post.getTitle());
-                                posts.add(post);
-                                Log.d("post", String.valueOf(posts.size()));
+                                if(post != null){
+//                                    Log.d("post", post.getTitle());
+                                    post.setDocID(document.getId());
+                                    posts.add(post);
+                                    Log.d("post", String.valueOf(posts.size()));
+                                }
+                                listView.setAdapter(postAdapter);
+
 //                                for(int i=0; i<5; i++){
 //                                    posts.add(new Post("포스트제목"+i,"포스트내용"+i,"방금","익명"));
 //                                }
                                 println("readPost Success");
-                                listView.setAdapter(postAdapter);
 
                             }
                         } else {
@@ -150,29 +178,21 @@ public class PostActivity extends AppCompatActivity {
 
     }
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) { //onResume 직전 호출
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             switch (requestCode){
 // MainActivity 에서 요청할 때 보낸 요청 코드 (3000)
                 case WRITE_CODE:
-//                    String title = data.getStringExtra("title");
-//                    String content = data.getStringExtra("content");
-//                    String time = data.getStringExtra("time");
-//                    String name = data.getStringExtra("name");
-////                    posts.add(new Post(title,content,time,name));
-//                    println(time);
+                    posts.clear();
+                    println("write onActivityResult");
                     readPosts();
+//                    postAdapter.notifyDataSetChanged();
                     break;
                 case UPDATE_CODE:
-                    String updateTitle = data.getStringExtra("title");
-                    String updateContent = data.getStringExtra("content");
-                    String updateTime = data.getStringExtra("time");
-                    String updateName = data.getStringExtra("name");
-                    int position = data.getIntExtra("position",-1);
-                    println(String.valueOf(position));
-//                    Post updatePost = new Post(updateTitle,updateContent,updateTime,updateName);
-//                    posts.set(position, updatePost);
+                    println("update onActivityResult");
+                    posts.clear();
+                    readPosts();
                     break;
             }
         }
@@ -182,14 +202,15 @@ public class PostActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         postAdapter.notifyDataSetChanged();
+        println("onResume");
     }
     void println(String message){
         Log.d(TAG, message);
         Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
     }
-    void openDialog(final int position)
+    void openDialog(final int i) //포스트 아이템 포지션
     {
-        Log.d("update dialog", String.valueOf(position));
+        Log.d("update dialog", String.valueOf(i));
         final List<String> ListItems = new ArrayList<>();
         ListItems.add("수정");
         ListItems.add("삭제");
@@ -202,19 +223,18 @@ public class PostActivity extends AppCompatActivity {
                 String selectedText = items[pos].toString();
                 Toast.makeText(PostActivity.this, selectedText, Toast.LENGTH_SHORT).show();
                 switch (pos){
-                    case 0:
+                    case 0: //수정
                         Intent intent = new Intent(PostActivity.this, WriteActivity.class);
-                        intent.putExtra("title", posts.get(position).getTitle());
-                        intent.putExtra("content", posts.get(position).getContent());
+                        intent.putExtra("title", posts.get(i).getTitle());
+                        intent.putExtra("content", posts.get(i).getContent());
                         intent.putExtra("position", position);
-                        println(String.valueOf(position));
+                        intent.putExtra("docID",posts.get(i).getDocID());
+                        intent.putExtra("REQUEST_CODE",UPDATE_CODE);
+                        println(String.valueOf(i));
                         startActivityForResult(intent,UPDATE_CODE );
                         break;
-                    case 1:
-                        //삭제
-                        posts.remove(position);
-                        listView.clearChoices(); //리스트뷰 선택초기화
-                        postAdapter.notifyDataSetChanged();
+                    case 1: //삭제
+                        deletePost(i);
                         break;
                 }
             }

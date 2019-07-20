@@ -10,6 +10,15 @@ public class Post {
     String school;
     ArrayList<String> comment;
     String uid;
+    String docID;
+
+    public String getDocID() {
+        return docID;
+    }
+
+    public void setDocID(String docID) {
+        this.docID = docID;
+    }
 
     public String getTitle() {
         return title;
