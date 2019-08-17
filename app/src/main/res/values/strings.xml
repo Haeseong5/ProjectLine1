@@ -4,6 +4,16 @@
     <string name="fb_login_protocol_scheme">fb1629854973827005</string>
 
     <string name="blank">""</string>
-
-
+    <string name="msg_token_fmt">fcm message</string>
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+    <string name="fcm_message">ss</string>
+    <string name="default_notification_channel_name">fcm_default_channel</string>
+    <string name="fcm_server_key">AAAAp1sLfWU:APA91bF5W49ubdeblVcLDWVLBNgfjGH880hR9QvnfblcOZpXcq1bh6RE5CalBST8UJDXvzSlnrwBJq2FY6Fto7rJs6cWe9wiTQv0weSI7nNJFBPxblZwCw0z6-A4vkXnqT1kqdu2ZpF6</string>
+    <string-array
+        name="ad_banner_link">
+        <item>https://postfiles.pstatic.net/MjAxOTA4MTFfNzgg/MDAxNTY1NTE0ODExMjQy.vNvRgPI12ShIFfmSYRAbEtP59HbUavQoZzJHAJTwc2Yg.mwPw8bYoYA7m7A9nckMEd8rA-yHDFm8i_w6sRMAk8uEg.JPEG.g_sftdvp/b8ea412f13af466897b7d9d8afdb2a32.jpg?type=w966</item>
+        <item>https://postfiles.pstatic.net/MjAxOTA4MTFfNTQg/MDAxNTY1NTE0Nzk3NTM2.9iENRZyPQUzjcDCwTcSitUj2ImGV8qpuXBnzlhIj_3cg.k3azfHviVuE90xjKAg-WtoppMY1A8c58XmRz4SJdzyMg.JPEG.g_sftdvp/38d940442ab1d63b8ec2fb4f02252ef6.jpg?type=w966</item>
+        <item>https://postfiles.pstatic.net/MjAxOTA3MDRfMTIx/MDAxNTYyMjQ0OTE0MTQ1.la5QOf76e1hLoFYnwP8j8ydqd8GtwBabUfd0ZyKym-gg.MXaoiLY8YLLYhHYt2I8PqVq_X2UdgE0axjcNwkZSvPog.JPEG.g_sftdvp/siina.jpg?type=w966</item>
+        <item>https://postfiles.pstatic.net/MjAxOTA3MDRfMTA1/MDAxNTYyMjQ0ODg1NDA1.L2qexqLu-b4LVp1dPA6R2EK0Z6nqEko981wBz3D7cT8g.OFUjKpfX29ryPJ7fyxsauANwH7I9mgGr5J59icfhl7Qg.JPEG.g_sftdvp/saske.jpg?type=w966</item>
+    </string-array>
 </resources>

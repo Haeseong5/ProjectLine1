@@ -3,10 +3,6 @@ package com.example.haeseong.projectline1.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,17 +11,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.adapter.PostAdapter;
 import com.example.haeseong.projectline1.data.Post;
-import com.example.haeseong.projectline1.data.UserData;
-import com.example.haeseong.projectline1.helper.GlobalUser;
+import com.example.haeseong.projectline1.firebase_helper.FireBaseApi;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -38,12 +36,13 @@ public class PostActivity extends AppCompatActivity {
     private static final String TAG = "PostActivity";
     public static final int WRITE_CODE = 101;
     public static final int UPDATE_CODE = 102;
-    FirebaseFirestore db;
+    public static final int DETAIL_CODE = 103;
+    FirebaseFirestore mFireStore;
 
     ListView listView;
     PostAdapter postAdapter;
     ArrayList<Post> posts;
-    android.support.v7.widget.Toolbar board_toolbar;
+    androidx.appcompat.widget.Toolbar board_toolbar;
     TextView tvBoardTitle;
     ImageView ivSearch;
     ImageView ivWrite;
@@ -55,53 +54,45 @@ public class PostActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
-        db = FirebaseFirestore.getInstance();
         listView = findViewById(R.id.post_listview);
         board_toolbar = findViewById(R.id.post_board_toolbar);
         tvBoardTitle = findViewById(R.id.post_board_title);
         ivSearch = findViewById(R.id.post_search_image);
         ivWrite = findViewById(R.id.post_write_image);
-        posts = new ArrayList<>();
+
         boardTitle[0] = "자유게시판";    boardId[0] = "free_board";
         boardTitle[1] = "과외게시판";    boardId[1] = "study_board";
         boardTitle[2] = "입시게시판";    boardId[2] = "univ_board";
         boardTitle[3] = "중고 장터";     boardId[3] = "market_board";
 
+        mFireStore = FirebaseFirestore.getInstance();
+
+        posts = new ArrayList<>();
         Intent intent = getIntent();
         if(intent != null){
             position = intent.getExtras().getInt("position");
             tvBoardTitle.setText(boardTitle[position]);
         }
-
         Toast.makeText(getApplicationContext(), position+boardTitle[position], Toast.LENGTH_SHORT).show();
-
         postAdapter = new PostAdapter(getApplicationContext(), posts, position);
-//        listView.setAdapter(postAdapter);
         readPosts();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            /**
-             * ListView의 Item을 Click 할 때 수행할 동작
-             * @param parent 클릭이 발생한 AdapterView.
-             * @param view 클릭 한 AdapterView 내의 View(Adapter에 의해 제공되는 View).
-             * @param position 클릭 한 Item의 position
-             * @param id 클릭 된 Item의 Id
-             */
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // adapter.getItem(position)의 return 값은 Object 형
-                // 실제 Item의 자료형은 CustomDTO 형이기 때문에
-                // 형변환을 시켜야 getResId() 메소드를 호출할 수 있습니다.
-//                String title = ((Post)postAdapter.getItem(position)).getTitle();
-                position = posts.size()-1-position;
-                // new Intent(현재 Activity의 Context, 시작할 Activity 클래스)
+            public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
+                i = posts.size()-1-i;
                 Intent intent = new Intent(PostActivity.this, DetailActivity.class);;
-                intent.putExtra("name", posts.get(position).getWriter());
-                intent.putExtra("title", posts.get(position).getTitle());
-                intent.putExtra("content", posts.get(position).getContent());
-                intent.putExtra("time", posts.get(position).getTimeStamp());
+                intent.putExtra("name", posts.get(i).getWriter());
+                intent.putExtra("title", posts.get(i).getTitle());
+                intent.putExtra("content", posts.get(i).getContent());
+                intent.putExtra("time", posts.get(i).getTimeStamp());
+                intent.putExtra("docID", posts.get(i).getDocID());
+                intent.putExtra("i", i);
                 intent.putExtra("position", position);
-                startActivity(intent);
+                intent.putExtra("boardId", boardId);
+                intent.putExtra("isMyPost", posts.get(i).isMyPost());
+                println(String.valueOf(posts.get(i).isMyPost()));
+                startActivityForResult(intent, DETAIL_CODE);
             }
         });
         ivWrite.setOnClickListener(new View.OnClickListener() {
@@ -123,11 +114,10 @@ public class PostActivity extends AppCompatActivity {
                 return false;
             }
         });
-
     }
 
     protected void deletePost(int i){
-        db.collection(boardId[position]).document(posts.get(i).getDocID())
+        mFireStore.collection(boardId[position]).document(posts.get(i).getDocID())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -146,7 +136,7 @@ public class PostActivity extends AppCompatActivity {
                 });
     }
     protected void readPosts(){ //갯수한정해야함. 페이징?기법 찾아보기
-        db.collection(boardId[position])
+        mFireStore.collection(boardId[position])
                 .orderBy("timeStamp", Query.Direction.ASCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -159,6 +149,13 @@ public class PostActivity extends AppCompatActivity {
                                 if(post != null){
 //                                    Log.d("post", post.getTitle());
                                     post.setDocID(document.getId());
+                                    println(post.getUid());
+                                    println(FireBaseApi.firebaseUser.getUid());
+                                    if(post.getUid().equals(FireBaseApi.firebaseUser.getUid()) ){
+                                        post.setMyPost(true);
+                                    }else{
+                                        post.setMyPost(false);
+                                    }
                                     posts.add(post);
                                     Log.d("post", String.valueOf(posts.size()));
                                 }
@@ -175,8 +172,8 @@ public class PostActivity extends AppCompatActivity {
                         }
                     }
                 });
-
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) { //onResume 직전 호출
         super.onActivityResult(requestCode, resultCode, data);
@@ -191,6 +188,10 @@ public class PostActivity extends AppCompatActivity {
                     break;
                 case UPDATE_CODE:
                     println("update onActivityResult");
+                    posts.clear();
+                    readPosts();
+                    break;
+                case DETAIL_CODE: //삭제가 이루어 졌을 때만 호출
                     posts.clear();
                     readPosts();
                     break;

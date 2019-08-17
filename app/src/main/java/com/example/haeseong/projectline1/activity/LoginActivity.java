@@ -2,9 +2,6 @@ package com.example.haeseong.projectline1.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +9,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.data.UserData;
+import com.example.haeseong.projectline1.firebase_helper.FireBaseApi;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -28,9 +30,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
 
@@ -50,16 +50,21 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // 파이어베이스 인증 객체 선언
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFireBaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        findView();
+        etEmail = findViewById(R.id.login_email_edit);
+        etPassword = findViewById(R.id.login_password_edit);
+        btLoginEmail = findViewById(R.id.login_email_button);
+        btLoginFacebook = findViewById(R.id.login_facebook_button);
+        tvSignUp = findViewById(R.id.login_signUp);
         setClickListener();
+
+        mFirebaseAuth = FireBaseApi.firebaseAuth;
+        mFireBaseUser = FireBaseApi.firebaseUser;
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                if (mFireBaseUser != null) {
+                    Log.d(TAG, "onAuthStateChanged:signed_in");
 
                 } else {
                     // User is signed out
@@ -77,14 +82,12 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 println("이메일 로그인");
                 emailLogin(etEmail.getText().toString(), etPassword.getText().toString());
-                finish();
             }
         });
         btLoginFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 facebookLogin();
-
             }
         });
         tvSignUp.setOnClickListener(new View.OnClickListener() {
@@ -106,9 +109,26 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-    protected void facebookLogin(){
-        //계속 같은 클래스의 메소드를 쓴다면 따로 클래스정의 하기
 
+    private void emailLogin(String email, String password){
+        mFirebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithEmail", task.getException());
+                            Toast.makeText(LoginActivity.this, "로그인 실패...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            checkUserDetailInfo();
+                            FireBaseApi.getCurrentToken(mFireBaseUser.getUid()); //db에 토큰저장
+                        }
+                    }
+                });
+
+    }
+
+    private void facebookLogin(){
         // LoginManager - 요청된 읽기 또는 게시 권한으로 로그인 절차를 시작합니다.
         mCallbackManager = CallbackManager.Factory.create(); //로그인 응답을 처리할 콜백 관리자
         LoginManager loginManager = LoginManager.getInstance();
@@ -137,51 +157,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-    private void emailLogin(String email, String password){
-        mFirebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail", task.getException());
-                            Toast.makeText(LoginActivity.this, "로그인 실패...", Toast.LENGTH_SHORT).show();
-                        } else {
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                        }
-                    }
-                });
 
-    }
-
-    protected void findView()
-    {
-        etEmail = findViewById(R.id.login_email_edit);
-        etPassword = findViewById(R.id.login_password_edit);
-        btLoginEmail = findViewById(R.id.login_email_button);
-        btLoginFacebook = findViewById(R.id.login_facebook_button);
-        tvSignUp = findViewById(R.id.login_signUp);
-    }
-
-    void println(String message){
-        Log.d(TAG, message);
-        Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-//        마지막으로 onActivityResult 메서드에서 callbackManager.onActivityResult를 호출하여
-//        로그인 결과를 callbackManager를 통해 LoginManager에 전달합니다.
-    }
-
-    //sharedprfernece 사용하여 인증키 저장하기
-    // 페이스북 로그인 이벤트
-// 사용자가 정상적으로 로그인한 후 페이스북 로그인 버튼의 onSuccess 콜백 메소드에서 로그인한 사용자의
-// 액세스 토큰을 가져와서 Firebase 사용자 인증 정보로 교환하고,
-// Firebase 사용자 인증 정보를 사용해 Firebase에 인증.
     private void handleFacebookAccessToken(final AccessToken accessToken, final boolean isLoggedIn) {
         AuthCredential credential = FacebookAuthProvider.getCredential(accessToken.getToken());
         mFirebaseAuth.signInWithCredential(credential)
@@ -193,7 +169,8 @@ public class LoginActivity extends AppCompatActivity {
                             if(isLoggedIn == true)
                             {
                                 mFireBaseUser = mFirebaseAuth.getCurrentUser();
-                                readUser_FireStore();
+                                checkUserDetailInfo();
+                                FireBaseApi.getCurrentToken(mFireBaseUser.getUid()); //db에 토큰저장
                                 //프로그래스바 추가
                             }
                         } else {
@@ -203,30 +180,62 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Check if mFirebaseUser is signed in (non-null) and update UI accordingly.
-        // 사용자가 로그인 되어있는 지 확인 -> 자동로그인으로 현재 유저 객체 보냄
-        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
-        autoLogin(currentUser);
-        mFirebaseAuth.addAuthStateListener(mAuthListener);
-
-    }
-
-    protected void autoLogin(FirebaseUser currentUser){
+    private void autoLogin(FirebaseUser currentUser){
         if (currentUser != null) {
             // User is signed in
             println("자동로그인 되었습니다. "+currentUser.getEmail());
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             Log.d("currentUser",currentUser.getPhotoUrl()+" "+currentUser.getDisplayName());
             startActivity(intent);
+//            checkUserDetailInfo(); //느림. 이 경우에는 메인에서 잡을 수 있도록 해씀.
+            FireBaseApi.getCurrentToken(mFireBaseUser.getUid()); //db에 토큰저장
             finish();
         } else {
             // No mFirebaseUser is signed in
         }
     }
+    protected void checkUserDetailInfo(){
+        FireBaseApi.readFireStore("users",mFireBaseUser.getUid(),
+                new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        UserData user = documentSnapshot.toObject(UserData.class);
+                        if(user!=null){
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            println("파이어베이스 로그인 성공");
+                            finish();
+                        }else{
+                            Intent intent = new Intent(LoginActivity.this, RegistProfileActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
+    }
+    void println(String message){
+        Log.d(TAG, message);
+        Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+//        마지막으로 onActivityResult 메서드에서 callbackManager.onActivityResult를 호출하여
+//        로그인 결과를 callbackManager를 통해 LoginManager에 전달합니다.
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Check if mFirebaseUser is signed in (non-null) and update UI accordingly.
+        // 사용자가 로그인 되어있는 지 확인 -> 자동로그인으로 현재 유저 객체 보냄
+//        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
+        autoLogin(mFireBaseUser);
+        mFirebaseAuth.addAuthStateListener(mAuthListener);
+
+    }
     @Override
     protected void onPause() {
         super.onPause();
@@ -240,26 +249,5 @@ public class LoginActivity extends AppCompatActivity {
             mFirebaseAuth.removeAuthStateListener(mAuthListener);
         }
     }
-    protected void readUser_FireStore(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("users").document(mFireBaseUser.getUid());
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                UserData user = documentSnapshot.toObject(UserData.class);
-                if(user!=null){
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    println("페이스북 로그인 success");
-                    println("파이어베이스 로그인 성공");
-                    finish();
-                }else{
-                    Intent intent = new Intent(LoginActivity.this, UpdateProfileActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
 
-            }
-        });
-    }
 }

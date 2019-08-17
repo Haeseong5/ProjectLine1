@@ -10,15 +10,23 @@ public class UserData {
     String school;
     String photo;
     String sex;
-    ArrayList<Post> posts;
+    ArrayList<String> posts;
     ArrayList<Comment> comments;
 
     public String getName() {
         return name;
     }
 
-    public void setNickName(String name) {
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getEmail() {
@@ -41,14 +49,6 @@ public class UserData {
         return school;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
     public void setSchool(String school) {
         this.school = school;
     }
@@ -61,7 +61,6 @@ public class UserData {
         this.photo = photo;
     }
 
-
     public String getSex() {
         return sex;
     }
@@ -70,11 +69,11 @@ public class UserData {
         this.sex = sex;
     }
 
-    public ArrayList<Post> getPosts() {
+    public ArrayList<String> getPosts() {
         return posts;
     }
 
-    public void setPosts(ArrayList<Post> posts) {
+    public void setPosts(ArrayList<String> posts) {
         this.posts = posts;
     }
 

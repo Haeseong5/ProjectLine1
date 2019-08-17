@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/post_board_toolbar"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -34,7 +34,7 @@
                 android:layout_marginHorizontal="5dp"
                 android:src="@drawable/ic_write"/>
         </LinearLayout>
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
     <ListView
         android:id="@+id/post_listview"
         android:layout_width="match_parent"

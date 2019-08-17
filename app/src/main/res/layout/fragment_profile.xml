@@ -25,6 +25,7 @@
                         android:layout_height="80dp"
                         android:layout_marginHorizontal="20dp"
                         android:layout_marginVertical="20dp"
+                        android:scaleType="centerCrop"
                         android:background="@color/colorGrey" />
                     <LinearLayout
                         android:layout_width="match_parent"

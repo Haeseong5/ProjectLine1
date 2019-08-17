@@ -1,20 +1,21 @@
 package com.example.haeseong.projectline1.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.haeseong.projectline1.R;
-import com.example.haeseong.projectline1.data.ChatData;
 import com.example.haeseong.projectline1.data.Comment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
     ArrayList<Comment> commentList;
@@ -29,11 +30,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         // each data item is just a string in this case
         public TextView tvName;
         public TextView tvComment;
-
+        public Button btReply;
         public ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.comment_name);
             tvComment = itemView.findViewById(R.id.comment_content);
+            btReply = itemView.findViewById(R.id.comment_reply_button);
         }
     }
 
@@ -72,13 +74,38 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         // - replace the contents of the view with that element
         holder.tvName.setText(commentList.get(position).getName());
         holder.tvComment.setText(commentList.get(position).getContent());
-
+        holder.btReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                showDialog();
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return commentList.size();
+    }
+
+    void showDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("AlertDialog Title");
+        builder.setMessage("AlertDialog Content");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(context,"예를 선택했습니다.",Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(context,"아니오를 선택했습니다.",Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.show();
     }
 }
 

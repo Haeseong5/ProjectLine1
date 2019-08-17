@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_app"
@@ -50,7 +55,36 @@
         <activity android:name=".activity.DetailActivity"></activity>
         <activity android:name=".activity.WriteActivity"></activity>
         <activity android:name=".activity.MapsActivity"></activity>
-        <activity android:name=".activity.UpdateProfileActivity"></activity>
+        <activity android:name=".activity.RegistProfileActivity"></activity>
+        <activity android:name=".activity.MealActivity"></activity>
+        <activity android:name=".activity.LargeProfileActivity"></activity>
+        <activity android:name=".activity.DetailProfileActivity"></activity>
+        <activity android:name=".market.MarketActivity"></activity>
+        <activity android:name=".market.MarketWriteActivity"></activity>
+
+        <service
+            android:name=".firebase_helper.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+
+
+
+        <!-- fcm 아이콘 설정-->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_app" />
+        <!-- fcm 색상 설정 -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+        <!--알림 채널 관리-->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+
 
     </application>
 

@@ -1,7 +1,6 @@
 package com.example.haeseong.projectline1.helper;
 
 import com.example.haeseong.projectline1.data.Comment;
-import com.example.haeseong.projectline1.data.Post;
 
 import java.util.ArrayList;
 
@@ -14,7 +13,9 @@ public class GlobalUser {
     private String school;
     private String photo;
     private String sex;
-    private ArrayList<Post> posts;
+    private String schoolCode;
+    private String token;
+    private ArrayList<String> posts;
     private ArrayList<Comment> comments;
     /**
      * 싱글턴, 하나의 객체만을 사용함.
@@ -29,6 +30,14 @@ public class GlobalUser {
             }
         }
         return instance;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getName() {
@@ -87,11 +96,11 @@ public class GlobalUser {
         this.sex = sex;
     }
 
-    public ArrayList<Post> getPosts() {
+    public ArrayList<String> getPosts() {
         return posts;
     }
 
-    public void setPosts(ArrayList<Post> posts) {
+    public void setPosts(ArrayList<String> posts) {
         this.posts = posts;
     }
 
@@ -102,4 +111,13 @@ public class GlobalUser {
     public void setComments(ArrayList<Comment> comments) {
         this.comments = comments;
     }
+
+    public String getSchoolCode() {
+        return schoolCode;
+    }
+
+    public void setSchoolCode(String schoolCode) {
+        this.schoolCode = schoolCode;
+    }
+
 }

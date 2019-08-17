@@ -11,6 +11,16 @@ public class Post {
     ArrayList<String> comment;
     String uid;
     String docID;
+    boolean isMyPost;
+
+    public boolean isMyPost() {
+        return isMyPost;
+    }
+
+    public void setMyPost(boolean myPost) {
+        isMyPost = myPost;
+    }
+
 
     public String getDocID() {
         return docID;

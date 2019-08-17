@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/detail_toolbar"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -27,7 +27,7 @@
                 android:src="@drawable/ic_menu"/>
         </RelativeLayout>
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
         <ScrollView
             android:layout_below="@+id/detail_toolbar"
             android:layout_width="match_parent"
@@ -93,41 +93,50 @@
                     <TextView
                         android:id="@+id/detail_content"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
+                        android:layout_height="wrap_content"
                         android:text="게시글 내용 ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ"
                         android:textColor="@color/colorBlack"
+                        android:layout_marginBottom="10dp"
                         android:textSize="18dp"/>
+                    <androidx.viewpager.widget.ViewPager
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                    </androidx.viewpager.widget.ViewPager>
+
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="3dp"
                     android:background="@color/colorDivision">
                 </LinearLayout>
-                <android.support.v7.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/detail_comment_recyclerview"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginHorizontal="15dp">
-                </android.support.v7.widget.RecyclerView>
+                </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
         </ScrollView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorGrey">
         <EditText
             android:id="@+id/detail_input_comment"
             android:layout_width="wrap_content"
             android:layout_weight="1"
             android:layout_height="60dp"
+            android:paddingHorizontal="15dp"
             android:hint="댓글을 작성하세요.ㅎㅎ"
             android:background="@color/colorWhite"
             />
         <Button
             android:id="@+id/detail_comment_ok"
             android:layout_width="80dp"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:text="완료"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>

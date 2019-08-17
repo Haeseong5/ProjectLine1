@@ -2,7 +2,6 @@ package com.example.haeseong.projectline1.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.activity.PostActivity;
+import com.example.haeseong.projectline1.market.MarketActivity;
 
 import java.util.ArrayList;
 
@@ -57,9 +59,16 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, String.valueOf(position),Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(context, PostActivity.class);
-                intent.putExtra("position",position);
-                context.startActivity(intent);
+                if(position == 3){
+                    Intent intent = new Intent(context, MarketActivity.class);
+                    intent.putExtra("position",position);
+                    context.startActivity(intent);
+                }else{
+                    Intent intent = new Intent(context, PostActivity.class);
+                    intent.putExtra("position",position);
+                    context.startActivity(intent);
+                }
+
             }
         });
     }

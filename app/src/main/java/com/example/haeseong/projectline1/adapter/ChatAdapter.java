@@ -1,7 +1,7 @@
 package com.example.haeseong.projectline1.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +13,6 @@ import com.example.haeseong.projectline1.R;
 import com.example.haeseong.projectline1.data.ChatData;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     final int MY_MESSAGE = 1;
