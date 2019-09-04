@@ -63,12 +63,13 @@ public class LoginActivity extends AppCompatActivity {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (mFireBaseUser != null) {
-                    Log.d(TAG, "onAuthStateChanged:signed_in");
-
+                if (firebaseAuth != null) {
+//                    Log.d(TAG, "onAuthStateChanged:signed_in");
+                    println("onAuthStateChanged:signed_in");
                 } else {
                     // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
+//                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                    println("onAuthStateChanged:signed_out");
                 }
                 // ...
             }
@@ -143,14 +144,11 @@ public class LoginActivity extends AppCompatActivity {
                 AccessToken accessToken = AccessToken.getCurrentAccessToken();
                 boolean isLoggedIn = (accessToken != null) && (!accessToken.isExpired()); //액세스토큰이 null이 아니고 만료되지 않았다면
                 handleFacebookAccessToken(accessToken,isLoggedIn);
-
             }
-
             @Override
             public void onCancel() {
                 Log.e("onCancel", "onCancel");
             }
-
             @Override
             public void onError(FacebookException exception) {
                 Log.e("onError", "onError " + exception.getLocalizedMessage());

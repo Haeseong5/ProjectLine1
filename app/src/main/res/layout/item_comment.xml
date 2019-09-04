@@ -21,7 +21,7 @@
                 android:textSize="18dp"
                 android:textColor="@color/colorBlack"
                 android:textStyle="bold"
-                android:text="익명"
+                android:text="name"
                 android:layout_weight="1"/>
             <LinearLayout
                 android:orientation="horizontal"
@@ -31,7 +31,7 @@
                     android:id="@+id/comment_reply_button"
                     android:layout_width="60dp"
                     android:layout_height="40dp"
-                    android:text="답글"/>
+                    android:text="답글달기"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16dp"
-            android:text="content"/>
+            android:text="time"/>
     </LinearLayout>
 
 </LinearLayout>

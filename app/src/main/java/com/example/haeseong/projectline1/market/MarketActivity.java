@@ -52,30 +52,7 @@ public class MarketActivity extends AppCompatActivity {
             startActivityForResult(intent,3000);
         });
         // specify an adapter (see also next example)
-//        mAdapter = new MarketAdapter(marketDataSet);
-//        mRecyclerView.setLayoutManager(new GridLayoutManager(this,2){
-//            @Override
-//            public boolean canScrollVertically() { // 세로스크롤 막기
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean canScrollHorizontally() { //가로 스크롤막기
-//                return false;
-//            }
-//        });
 
-
-
-//        marketDataSet.add(new MarketData("#InsideOut", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#Mini", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#ToyStroy", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#InsideOut", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#Mini", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#ToyStroy", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#InsideOut", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#Mini", R.mipmap.ic_app));
-//        marketDataSet.add(new MarketData("#ToyStroy", R.mipmap.ic_app));
     }
     protected void readMarketData(){ //갯수한정해야함. 페이징?기법 찾아보기
         FireBaseApi.firestore.collection("market_board")
@@ -91,9 +68,10 @@ public class MarketActivity extends AppCompatActivity {
                                 if(marketData != null){
                                     marketDataSet.add(marketData);
                                     Log.d("post", String.valueOf(marketDataSet.size()));
-                                    mRecyclerView.setAdapter(marketAdapter);
                                 }
                             }
+                            mRecyclerView.setAdapter(marketAdapter);
+
                         } else {
 
                             Log.w(TAG, "Error getting documents.", task.getException());

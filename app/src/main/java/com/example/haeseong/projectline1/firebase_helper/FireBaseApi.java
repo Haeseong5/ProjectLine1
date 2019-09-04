@@ -48,8 +48,6 @@ public class FireBaseApi { //Util or Helper 디자인 패턴
 
     public static void setFcmToken(String uid, final String token){
         DocumentReference userRef = firestore.collection("users").document(uid);
-
-
         userRef
                 .update("token", token)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
