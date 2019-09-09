@@ -7,13 +7,18 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.haeseong.projectline1.R;
+import com.example.haeseong.projectline1.adapter.MenuAdapter;
+import com.example.haeseong.projectline1.data.Menu;
+import com.example.haeseong.projectline1.data.MenuResult;
 import com.example.haeseong.projectline1.helper.GlobalUser;
 import com.example.haeseong.projectline1.helper.SchoolApiConnection;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -21,16 +26,18 @@ import okhttp3.Response;
 
 public class MealActivity extends AppCompatActivity {
     String TAG = "MealActivity";
-    TextView textView;
+    ViewPager viewPager;
+    MenuAdapter menuAdapter;
     SchoolApiConnection schoolApi;
     GlobalUser globalUser;
     Handler handler;
     String[] schoolCode ;
+    ArrayList<Menu> menuList;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meal);
-        textView = findViewById(R.id.meal_text);
+        viewPager = findViewById(R.id.menu_viewpager);
         globalUser = GlobalUser.getInstance();
         schoolApi = SchoolApiConnection.getInstance();
         handler = new Handler();
@@ -41,8 +48,10 @@ public class MealActivity extends AppCompatActivity {
         schoolCode[3] = "J100000762"; //제일고
         checkSchool(globalUser.getSchool());
         getData();
+
     }
         public void getData() {
+           menuList = new ArrayList<>();
             schoolApi.dataRequest(globalUser.getSchoolCode(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -61,8 +70,15 @@ public class MealActivity extends AppCompatActivity {
                                 try {
                                     responseResult = response.body().string();
                                     Log.d(TAG, "getData result: " + responseResult);
-                                    textView.setText(responseResult);
                                     Gson gson = new Gson();
+                                    MenuResult menuResult = gson.fromJson(responseResult,MenuResult.class);
+                                    if(menuResult != null){
+//                                        Log.d("menuResult", menuResult.getServer_message().get(0));
+                                        Log.d("menuResult", String.valueOf(menuResult.getMenu().size()));
+                                        menuList = menuResult.getMenu();
+                                        menuAdapter = new MenuAdapter(getApplicationContext(),menuList);
+                                        viewPager.setAdapter(menuAdapter);
+                                    }
 
                                 } catch (IOException e) {
                                     e.printStackTrace();

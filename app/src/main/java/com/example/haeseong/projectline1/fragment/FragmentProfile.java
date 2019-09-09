@@ -170,7 +170,9 @@ public class FragmentProfile extends Fragment {
         profileItems.add(new ProfileItem("닉네임 변경", R.mipmap.ic_app, getString(R.string.blank)));
         profileItems.add(new ProfileItem("프로필 이미지 변경", R.mipmap.ic_app, getString(R.string.blank)));
         profileItems.add(new ProfileItem("학교 인증", R.mipmap.ic_app, getString(R.string.blank)));
-        profileItems.add(new ProfileItem("내가 쓴 글", R.mipmap.ic_app, String.valueOf(globalUser.getPosts().size())));
+        if(globalUser.getPosts()!=null){
+            profileItems.add(new ProfileItem("내가 쓴 글", R.mipmap.ic_app, String.valueOf(globalUser.getPosts().size())));
+        }
         profileItems.add(new ProfileItem("내가 댓글 단 글", R.mipmap.ic_app, "0"));
 
         profileAdapter = new ProfileAdapter(getActivity(), profileItems);

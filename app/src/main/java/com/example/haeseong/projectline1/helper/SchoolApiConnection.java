@@ -8,7 +8,7 @@ import okhttp3.Request;
 
 public class SchoolApiConnection {
     private static String TAG = SchoolApiConnection.class.getSimpleName(); //현재 클래스명 읽어오기.
-
+//https://github.com/5d-jh/school-menu-api
     OkHttpClient client;
     String URL = "https://schoolmenukr.ml/api/high/";
     private static SchoolApiConnection apiConnection = new SchoolApiConnection();

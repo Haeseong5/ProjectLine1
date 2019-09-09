@@ -12,7 +12,7 @@
     <item
         android:id="@+id/navigation_menu3"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="쪽지함" />
+        android:title="멘토링" />
     <item
         android:id="@+id/navigation_menu4"
         android:icon="@android:drawable/ic_menu_help"

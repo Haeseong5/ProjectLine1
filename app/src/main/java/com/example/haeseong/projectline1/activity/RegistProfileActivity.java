@@ -68,7 +68,7 @@ public class RegistProfileActivity extends AppCompatActivity {
 
         mFirebaseUser = FireBaseApi.firebaseUser;
         mStorageRef = FireBaseApi.storageReference;
-        ivProfile.setImageURI(mFirebaseUser.getPhotoUrl());
+//        ivProfile.setImageURI(mFirebaseUser.getPhotoUrl());
         if(getIntent() != null){
             String name = getIntent().getStringExtra("name");
             String profileImage = getIntent().getStringExtra("image");
